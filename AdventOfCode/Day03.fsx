@@ -41,8 +41,7 @@ let splitDirections =
     |> Seq.toList
     |> splitList
 
-let takeDirections = 
-    fun x -> 
+let takeDirections x = 
         x
         |> List.map followDirection
         |> List.scan combineDirections startPoint

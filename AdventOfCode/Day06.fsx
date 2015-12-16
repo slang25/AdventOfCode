@@ -1,24 +1,49 @@
-﻿// WIP just playing atm
+﻿#load "Day06.fs"
 
-let input = "toggle 237,91 through 528,164"
+open System
+open Day06
 
-type Command =
+let lines = input.Split([| '\n' |])
+
+let grid = Array2D.create 10 10 false
+
+type Command = 
     | Toggle
     | TurnOn
     | TurnOff
 
-let x = match input with
-        | c when c.StartsWith("toggle") -> Toggle
-        | c when c.StartsWith("turn on") -> TurnOn
-        | c when c.StartsWith("turn off") -> TurnOff
+let parseCommand (line : string) = 
+    match line with
+    | c when c.StartsWith("toggle") -> Toggle
+    | c when c.StartsWith("turn on") -> TurnOn
+    | c when c.StartsWith("turn off") -> TurnOff
 
-let coords = input.Split(" through ") 
-  |> Array.collect (fun (s:string) -> s.Split(','))
-  |> Array.map (fun (s:string) -> s.Trim("abcdefghijklmnopqrstuvwxyz ")
-  |> Array.map int
-  
-let grid = Array2D.create 10 10 (byte 0)
+let coords (line : string) = 
+    line.Split([| "toggle"; "turn on"; "turn off"; "through" |], StringSplitOptions.RemoveEmptyEntries) |> Array.map (fun (s : string) -> 
+                                                                                                                s.Trim()
+                                                                                                                 .Split(',') |> (fun x -> 
+                                                                                                                x
+                                                                                                                |> Array.item 
+                                                                                                                       0
+                                                                                                                |> int, 
+                                                                                                                x
+                                                                                                                |> Array.item 
+                                                                                                                       1
+                                                                                                                |> int))
 
-grid.[0,0] <- (grid.[0,0] ||| byte 1)
+let runCommand (command, (x1, y1), (x2, y2)) = 
+    for x in x1..x2 do
+        for y in y1..y2 do
+            match command with
+            | TurnOn -> grid.[x, y] <- true
+            | TurnOff -> grid.[x, y] <- false
+            | Toggle -> grid.[x, y] <- not grid.[x, y]
 
+lines |> Seq.iter (fun x -> runCommand (x |> parseCommand, (x |> coords |> Array.item 0), (x |> coords |> Array.item 1)))
 
+let mutable count = 0
+grid |> Array2D.iter (function
+    | true -> count <- count + 1
+    | _ -> ())
+
+printf "%i" count

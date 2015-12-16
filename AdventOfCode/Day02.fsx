@@ -6,7 +6,6 @@ let lines = dimensionList.Split([| '\n' |])
 
 let parsedDimensions = 
     lines
-    |> Array.toSeq
     |> Seq.map (fun x -> 
            x.Split('x') |> Seq.map int |> (fun x -> 
            x

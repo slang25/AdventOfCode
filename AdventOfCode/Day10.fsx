@@ -1,23 +1,19 @@
 ﻿let input = "1113122113"
 
-let grouped (items : seq<_>) = 
-    seq { 
-        use e = items.GetEnumerator()
-        if e.MoveNext() then 
-            let prev = ref e.Current
-            let count = ref 1
-            while e.MoveNext() do
-                if e.Current <> !prev then 
-                    yield !prev, !count
-                    prev := e.Current
-                    count := 1
-                else incr count
-            yield !prev, !count
-    }
+let grouped =
+    function
+    | [] -> []
+    | x :: xs -> 
+        ([ (x, 1) ], xs)
+        ||> List.fold (fun ((y, c) :: acc) x -> 
+                if x = y then (y, c + 1) :: acc
+                else (x, 1) :: (y, c) :: acc)
+        |> List.rev
 
 let onePass (s : seq<char>) = 
-    s
+    s |> List.ofSeq
     |> grouped
+    // only supporting 1 digit count so that we can easily yield chars for perf
     |> Seq.map (fun (c, n) -> 
            match n with
            | x when x > 9 -> failwith "oh teh noes"
@@ -34,8 +30,6 @@ let multiPass a b =
         else acc
     loop a b
 
-let something = input.ToCharArray() |> Seq.ofArray
-
-multiPass something 50
+multiPass input 50
 |> Seq.length
 |> printf "%i"

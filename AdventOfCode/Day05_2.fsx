@@ -4,35 +4,22 @@ open Day05
 
 let lines = input.Split([| '\n' |])
 
-let fold state value = 
-    match state with
-    | i :: _ when i = value -> state
-    | _ -> value :: state
-
 let check1 (s : string) = 
-    s.ToCharArray()
-    |> Seq.ofArray
+    s
     |> Seq.windowed 3
     |> Seq.exists (fun l -> (l |> Array.item 0) = (l |> Array.item 2))
 
-let grouped (items : seq<_>) = 
-    seq { 
-        use e = items.GetEnumerator()
-        if e.MoveNext() then 
-            let prev = ref e.Current
-            let count = ref 1
-            while e.MoveNext() do
-                if e.Current <> !prev then 
-                    yield !prev, !count
-                    prev := e.Current
-                    count := 1
-                else incr count
-            yield !prev, !count
-    }
+let grouped input =
+    input
+    |> Seq.fold (fun acc x ->
+        match acc with
+        | (x', n)::tl when x = x' ->
+            (x', n+1)::tl
+        | _ -> (x, 1)::acc) []
+    |> Seq.sortByDescending snd
 
 let stringToGrouped (s : string) = 
-    s.ToCharArray()
-    |> Seq.ofArray
+    s
     |> grouped
 
 let hasDuplicates (s : seq<_>) = 
@@ -45,7 +32,7 @@ let hasDuplicates (s : seq<_>) =
          <> (l |> List.length))
 
 let check2FromGrouped (l : seq<char * int>) = 
-    l
+    l |> Seq.cache
     |> Seq.exists (fun (_, n) -> n > 3)
     || l
        |> Seq.map fst
@@ -64,9 +51,6 @@ let check2 (s : string) =
 let allChecks (s : string) = check1 s && check2 s
 
 lines
-|> Array.map allChecks
-|> Array.sumBy (fun b -> 
-       match b with
-       | true -> 1
-       | false -> 0)
+|> Seq.filter allChecks
+|> Seq.length
 |> printf "%i"
