@@ -5,7 +5,7 @@ open Day06
 
 let lines = input.Split([| '\n' |])
 
-let grid = Array2D.create 10 10 false
+let grid = Array2D.create 1000 1000 false
 
 type Command = 
     | Toggle
