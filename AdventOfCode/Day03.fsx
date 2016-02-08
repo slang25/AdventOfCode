@@ -1,6 +1,7 @@
 ﻿#load "Day03.fs"
 
 open Day03
+open System
 
 type ElfDirection = 
     | Up
@@ -14,7 +15,8 @@ let parsedDirections =
                           | '^' -> Up
                           | 'v' -> Down
                           | '<' -> Left
-                          | '>' -> Right)
+                          | '>' -> Right
+                          | _ -> failwith  "no, just no")
 
 let startPoint = (0, 0)
 
